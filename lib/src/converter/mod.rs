@@ -35,6 +35,8 @@ pub struct ConversionConfig {
     pub feedrate: f64,
     /// Dots per inch for pixels, picas, points, etc.
     pub dpi: f64,
+    /// Amount of passes
+    pub passes: i32,
     /// Set the origin point for this conversion
     #[cfg_attr(feature = "serde", serde(default = "zero_origin"))]
     pub origin: [Option<f64>; 2],
@@ -51,6 +53,7 @@ impl Default for ConversionConfig {
             feedrate: 300.0,
             dpi: 96.0,
             origin: [Some(0.); 2],
+            passes: 1,
         }
     }
 }
@@ -269,14 +272,18 @@ pub fn svg2program<'a, 'input: 'a>(
         options,
         name_stack: vec![],
     };
+
     conversion_visitor
         .terrarium
         .push_transform(origin_transform);
-    conversion_visitor.begin();
-    visit::depth_first_visit(doc, &mut conversion_visitor);
-    conversion_visitor.end();
-    conversion_visitor.terrarium.pop_transform();
+    
+    for n in 0..config.passes {
+        conversion_visitor.begin();
+        visit::depth_first_visit(doc, &mut conversion_visitor);
+        conversion_visitor.end();
+    }
 
+    conversion_visitor.terrarium.pop_transform();
     conversion_visitor.terrarium.turtle.program
 }
 

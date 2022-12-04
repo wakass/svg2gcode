@@ -27,6 +27,10 @@ struct Opt {
     /// Used for scaling visual units (pixels, points, picas, etc.)
     #[structopt(long)]
     dpi: Option<f64>,
+    /// Amount of passes
+    /// Will determine how many times a pattern is repeated
+    #[structopt(long)]
+    passes: Option<i32>,
     #[structopt(alias = "tool_on_sequence", long = "on")]
     /// G-Code for turning on the tool
     tool_on_sequence: Option<String>,
@@ -89,6 +93,7 @@ fn main() -> io::Result<()> {
             conversion.dpi = opt.dpi.unwrap_or(conversion.dpi);
             conversion.feedrate = opt.feedrate.unwrap_or(conversion.feedrate);
             conversion.tolerance = opt.tolerance.unwrap_or(conversion.tolerance);
+            conversion.passes = opt.passes.unwrap_or(conversion.passes);
         }
         {
             let machine = &mut settings.machine;
