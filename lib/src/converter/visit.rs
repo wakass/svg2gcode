@@ -1,8 +1,11 @@
 use roxmltree::{Document, Node};
 
+pub use crate::converter::{ConversionConfig, ConversionOptions};
+
 pub trait XmlVisitor {
     fn visit_enter(&mut self, node: Node);
     fn visit_exit(&mut self, node: Node);
+    fn get_config(&self)-> &ConversionConfig;
 }
 
 pub fn is_valid_node(node: Node) -> bool {
@@ -22,8 +25,10 @@ pub fn depth_first_visit(doc: &Document, visitor: &mut impl XmlVisitor) {
         node.children().for_each(|child| visit_node(child, visitor));
         visitor.visit_exit(node);
     }
-
-    doc.root()
-        .children()
-        .for_each(|child| visit_node(child, visitor));
+    for n in 0..visitor.get_config().passes {
+        doc.root()
+            .children()
+            .for_each(|child| visit_node(child, visitor));
+    }
+    
 }

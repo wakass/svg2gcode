@@ -227,6 +227,10 @@ impl<'a, T: Turtle> visit::XmlVisitor for ConversionVisitor<'a, T> {
         self.terrarium.pop_transform();
         self.name_stack.pop();
     }
+
+    fn get_config(&self) -> &ConversionConfig {
+        return self.config;
+    }
 }
 
 pub fn svg2program<'a, 'input: 'a>(
@@ -277,11 +281,10 @@ pub fn svg2program<'a, 'input: 'a>(
         .terrarium
         .push_transform(origin_transform);
     
-    for n in 0..config.passes {
-        conversion_visitor.begin();
-        visit::depth_first_visit(doc, &mut conversion_visitor);
-        conversion_visitor.end();
-    }
+    conversion_visitor.begin();
+    visit::depth_first_visit(doc, &mut conversion_visitor);
+    conversion_visitor.end();
+
 
     conversion_visitor.terrarium.pop_transform();
     conversion_visitor.terrarium.turtle.program
